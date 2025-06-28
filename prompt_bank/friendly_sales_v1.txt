@@ -1,0 +1,1 @@
+Hi team at {{company_name}}, I saw your recent work on {{context}}. I’d love to connect and explore a potential collaboration.
