@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Email Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="card">
+    <h1>Email Generator</h1>
+
+    <form id="email-gen-form">
+      <label>
+        Company name:
+        <input type="text" name="company_name" required />
+      </label>
+
+      <label>
+        Industry:
+        <input type="text" name="industry" required />
+      </label>
+
+      <label>
+        Tone:
+        <select name="tone" required>
+          <option value="">— Select —</option>
+          <option value="professional">Professional</option>
+          <option value="friendly">Friendly</option>
+          <option value="direct">Direct</option>
+        </select>
+      </label>
+
+      <label>
+        Focus:
+        <select name="focus" required>
+          <option value="">— Select —</option>
+          <option value="partnership">Partnership</option>
+          <option value="networking">Networking</option>
+          <option value="sales">Sales</option>
+          <option value="collaboration">Collaboration</option>
+        </select>
+      </label>
+
+      <fieldset>
+        <legend>Additional Context (3 points required):</legend>
+
+        <label title="E.g. We just launched our new product and saw 2× month-over-month growth…">
+          Point 1:
+          <input
+            type="text"
+            name="context_point_1"
+            required
+            placeholder="We just launched our new product…"
+          />
+        </label>
+
+        <label title="E.g. Our target is enterprise SaaS teams with $5M+ ARR…">
+          Point 2:
+          <input
+            type="text"
+            name="context_point_2"
+            required
+            placeholder="Our target is enterprise SaaS teams…"
+          />
+        </label>
+
+        <label title="E.g. We’re exploring co-marketing partnerships in EMEA to expand reach…">
+          Point 3:
+          <input
+            type="text"
+            name="context_point_3"
+            required
+            placeholder="We’re exploring co-marketing partnerships…"
+          />
+        </label>
+      </fieldset>
+
+      <label>
+        More Context (optional):
+        <textarea
+          name="optional_context"
+          placeholder="Any other details you’d like the AI to consider…"
+        ></textarea>
+      </label>
+
+      <label>
+        Model:
+        <select name="model_choice" required>
+          <option value="">— Select —</option>
+          <option value="claude">Claude</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="groq">Groq</option>
+        </select>
+      </label>
+
+      <button type="submit">Generate Email</button>
+    </form>
+
+    <div id="result-area"></div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/email_generator.js') }}"></script>
+</body>
+</html>
