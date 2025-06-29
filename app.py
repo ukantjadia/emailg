@@ -4,11 +4,15 @@ from routes.input_form_routes import input_form
 from routes.main_routes import main_bp
 from logging_setup import setup_logging     # Enable logging
 from config.config import config
+from models import db
+from models.feedback_model import MessageFeedback  # <-- Import here, not in __init__.py
 
 def create_app(config_class=config):
     """Create and configure the Flask application"""
     setup_logging()
     app = Flask(__name__, template_folder='templates', static_folder='static')
+    app.config.from_object(config_class)
+    db.init_app(app)
 
     # Production cookie settings for session auth
     app.config["SESSION_COOKIE_SAMESITE"] = "None"
@@ -34,6 +38,12 @@ def create_app(config_class=config):
     # 🔌 Register the email generation API
     app.register_blueprint(input_form)
     app.register_blueprint(main_bp)
+
+    with app.app_context():
+        print("creating the edb db ")
+        print('DB URI:', app.config['SQLALCHEMY_DATABASE_URI'])
+        db.create_all()  # This will create tables if they do not exist
+
     return app
 
 app = create_app()

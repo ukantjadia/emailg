@@ -2,3 +2,5 @@ Flask
 flask_cors
 python-dotenv
 jsonify
+flask_sqlalchemy
+psycopg2
