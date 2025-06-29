@@ -4,7 +4,7 @@ from routes.input_form_routes import input_form
 from routes.main_routes import main_bp
 from logging_setup import setup_logging     # Enable logging
 from config.config import config
-
+from Routes.feedback_routes import feedback_bp
 def create_app(config_class=config):
     """Create and configure the Flask application"""
     setup_logging()
@@ -34,6 +34,7 @@ def create_app(config_class=config):
     # 🔌 Register the email generation API
     app.register_blueprint(input_form)
     app.register_blueprint(main_bp)
+    app.register_blueprint(feedback_bp)
     return app
 
 app = create_app()
