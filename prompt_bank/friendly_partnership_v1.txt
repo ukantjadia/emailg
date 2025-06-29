@@ -1,0 +1,1 @@
+Hey team {{company_name}}, I really liked your work in the {{industry}} space! {{context}} sounds exciting — let’s explore a partnership?

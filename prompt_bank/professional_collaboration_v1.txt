@@ -1,0 +1,1 @@
+Hi {{company_name}}, I found your recent initiatives in {{industry}} — {{context}} — quite relevant. Let’s explore potential collaboration opportunities.

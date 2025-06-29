@@ -1,0 +1,1 @@
+Hi {{company_name}}, I see you're working on {{context}} in the {{industry}} sector. Interested in collaborating on a shared goal?

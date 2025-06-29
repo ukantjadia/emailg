@@ -1,0 +1,1 @@
+Hello {{company_name}}, I came across your work in {{industry}} — {{context}} really stood out. I'd appreciate the chance to connect and exchange ideas.

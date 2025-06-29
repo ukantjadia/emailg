@@ -1,0 +1,1 @@
+Dear {{company_name}}, I was impressed by your recent growth in {{industry}}, especially around {{context}}. I’d love to introduce how we might support your goals.

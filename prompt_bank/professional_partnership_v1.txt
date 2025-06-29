@@ -1,0 +1,1 @@
+Dear {{company_name}} team, your recent efforts in {{industry}}, particularly in {{context}}, suggest strong alignment. I’d like to explore a partnership.

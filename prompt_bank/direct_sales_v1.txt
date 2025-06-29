@@ -1,0 +1,1 @@
+Hi {{company_name}}, noticed your progress in {{industry}} around {{context}}. I believe we can offer value — let's talk.

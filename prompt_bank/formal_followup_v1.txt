@@ -1,1 +1,0 @@
-Dear {{company_name}} team, I wanted to follow up on your recent milestone regarding {{context}}. I believe there’s mutual interest worth discussing.

@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
-from routes.input_form_routes import input_form
-from routes.main_routes import main_bp
+from Routes.input_form_routes import input_form
+from Routes.main_routes import main_bp
 from logging_setup import setup_logging     # Enable logging
 from config.config import config
 
