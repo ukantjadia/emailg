@@ -7,6 +7,7 @@ from config.config import config
 from models import db
 from models.feedback_model import MessageFeedback  # <-- Import here, not in __init__.py
 
+from routes.feedback_routes import feedback_bp
 def create_app(config_class=config):
     """Create and configure the Flask application"""
     setup_logging()
@@ -44,6 +45,7 @@ def create_app(config_class=config):
         print('DB URI:', app.config['SQLALCHEMY_DATABASE_URI'])
         db.create_all()  # This will create tables if they do not exist
 
+    app.register_blueprint(feedback_bp)
     return app
 
 app = create_app()
