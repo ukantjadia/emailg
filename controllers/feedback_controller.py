@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from models.feedback_model import MessageFeedback, db
 from controllers.generate_controller import GenerateController
-from controllers.prompt_controller import PromptController
+from controllers.prompt_controller import  get_prompt_path
 from logging_setup import setup_logging
 
 # Get logger instance (logging setup should be called in app.py)
@@ -26,7 +26,7 @@ class FeedbackController:
     
     def __init__(self):
         self.generate_controller = GenerateController()
-        self.prompt_controller = PromptController()
+        self.prompt_controller = get_prompt_path()
     
     def capture_feedback(self, feedback_data: Dict[str, Any]) -> Dict[str, Any]:
         """
