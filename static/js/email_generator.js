@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // optional
     const optional = form.optional_context.value.trim();
+    if (optional) {
+      contextPoints.push(optional);
+    }
 
     const payload = {
       company_name: form.company_name.value.trim(),
@@ -23,8 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
       focus: form.focus.value,
       additional_context: contextPoints,
       model_choice: form.model_choice.value,
-      // only include if user entered something
-      ...(optional && { optional_context: optional })
     };
 
     try {

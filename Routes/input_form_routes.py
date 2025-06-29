@@ -18,12 +18,14 @@ def generate_email():
         focus = data.get("focus", "")
         company = data.get("company_name", "")
         industry = data.get("industry", "")
-        context_points = data.get("additional_context", [])
+        context_points = data.get("additional_context")
 
         # Merge context and optional into one string
         context = " ".join(context_points)
 
+
         logging.info(f"user inputs: {data}")
+        logging.info(f"selected data : {tone, focus, company, industry, context}")
 
         # Pass everything to prompt builder
         prompt = build_prompt(tone, focus, company, industry, context)
@@ -36,4 +38,3 @@ def generate_email():
     except Exception as e:
         logger.error("❌ Error in generate_email route", exc_info=True)
         return jsonify({ "error": str(e) }), 500
-
