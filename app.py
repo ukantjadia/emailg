@@ -8,6 +8,8 @@ from models import db
 from models.feedback_model import MessageFeedback  # <-- Import here, not in __init__.py
 
 from routes.feedback_routes import feedback_bp
+from routes.email_routes import email_bp
+
 def create_app(config_class=config):
     """Create and configure the Flask application"""
     setup_logging()
@@ -39,6 +41,7 @@ def create_app(config_class=config):
     # 🔌 Register the email generation API
     app.register_blueprint(input_form)
     app.register_blueprint(main_bp)
+    app.register_blueprint(email_bp)
 
     with app.app_context():
         print("creating the edb db ")
