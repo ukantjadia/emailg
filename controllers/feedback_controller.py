@@ -11,8 +11,8 @@ from flask import request, jsonify, session
 from sqlalchemy.exc import SQLAlchemyError
 
 from models.feedback_model import MessageFeedback, db
-from controllers.generate_controller import GenerateController
-from controllers.prompt_controller import  get_prompt_path
+# from controllers.generate_controller import GenerateController
+from controllers.prompt_controller import get_prompt_path
 from logging_setup import setup_logging
 
 # Get logger instance (logging setup should be called in app.py)
@@ -25,8 +25,9 @@ class FeedbackController:
     """
     
     def __init__(self):
-        self.generate_controller = GenerateController()
-        self.prompt_controller = get_prompt_path()
+        # self.generate_controller = GenerateController()
+        # Store the prompt-path function, do not call it here
+        self.prompt_path_func = get_prompt_path
     
     def capture_feedback(self, feedback_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -40,11 +41,12 @@ class FeedbackController:
         """
         try:
             # Validate required fields
-            required_fields = ['message_id', 'feedback_type', 'user_id', 'company_name', 
-                             'industry', 'tone', 'focus', 'context', 'model_used', 
-                             'prompt_template', 'prompt_text', 'generated_message']
-            
-            missing_fields = [field for field in required_fields if field not in feedback_data]
+            required_fields = [
+                'message_id', 'feedback_type', 'user_id', 'company_name', 
+                'industry', 'tone', 'focus', 'context', 'model_used', 
+                'prompt_template', 'prompt_text', 'generated_message'
+            ]
+            missing_fields = [f for f in required_fields if f not in feedback_data]
             if missing_fields:
                 return {
                     'success': False,
@@ -71,8 +73,8 @@ class FeedbackController:
                 prompt_template=feedback_data['prompt_template'],
                 prompt_text=feedback_data['prompt_text'],
                 generated_message=feedback_data['generated_message'],
-                is_upvote=feedback_data['feedback_type'] == 'upvote',
-                is_downvote=feedback_data['feedback_type'] == 'downvote',
+                is_upvote=(feedback_data['feedback_type'] == 'upvote'),
+                is_downvote=(feedback_data['feedback_type'] == 'downvote'),
                 is_regeneration=False,
                 timestamp=datetime.utcnow()
             )
@@ -103,6 +105,8 @@ class FeedbackController:
                 'success': False,
                 'error': 'An unexpected error occurred while processing feedback'
             }
+    
+    # ... rest of class unchanged ...
     
     def handle_regeneration(self, regeneration_data: Dict[str, Any]) -> Dict[str, Any]:
         """
