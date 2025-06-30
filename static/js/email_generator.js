@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       // If context already exists, leave it as is
       endpoint = "/regenerate";
+      // Add user_id
+      payload.user_id = '123345-123345-8234';
       console.log("[email_generator.js] Regeneration payload:", payload);
     } else {
       const contextPoints = [
@@ -43,6 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (form.parent_message_id) {
         payload.parent_message_id = form.parent_message_id;
       }
+      // Add user_id
+      payload.user_id = '123345-123345-8234';
       endpoint = "/api/generate-email";
       console.log("[email_generator.js] Generation payload:", payload);
     }
@@ -58,8 +62,18 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("[email_generator.js] Error response:", err);
         throw new Error(err.error || res.statusText);
       }
-      const { message, prompt_version, message_id, parent_message_id, prompt_text } = await res.json();
-      console.log("[email_generator.js] API response:", { message, prompt_version, message_id, parent_message_id, prompt_text });
+      const response = await res.json();
+      const {
+        message,
+        prompt_template,
+        prompt_version,
+        message_id,
+        parent_message_id,
+        prompt_text
+      } = response;
+
+      const promptTemplateValue = prompt_template || prompt_version || "";
+
       lastFeedbackData = {
         message_id,
         parent_message_id: parent_message_id || payload.parent_message_id || null,
@@ -70,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         focus: payload.focus,
         context: payload.context || (payload.additional_context || []).join(" "),
         model_used: payload.model_choice,
-        prompt_template: prompt_version,
+        prompt_template: promptTemplateValue,
         prompt_text: prompt_text || "",
         generated_message: {
           message: message,
@@ -80,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultArea.innerHTML = `
         <h2>Generated Email</h2>
         <pre>${message}</pre>
-        <p><small>Prompt version: ${prompt_version}</small></p>
+        <p><small>Prompt version: ${promptTemplateValue}</small></p>
         <button id="upvote">👍 Upvote</button>
         <button id="downvote">👎 Downvote</button>
         <button id="regenerate">🔄 Regenerate</button>
@@ -114,7 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!lastFeedbackData) return;
     const feedbackPayload = {
       ...lastFeedbackData,
-      feedback_type: type
+      feedback_type: type,
+      user_id: '123345-123345-8234'
     };
     // Remove user_id from requiredFields check
     const requiredFields = [

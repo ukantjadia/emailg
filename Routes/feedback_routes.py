@@ -16,3 +16,10 @@ def regenerate_content():
 def get_analytics():
     filters = request.args.to_dict()
     return jsonify(feedback_controller.get_feedback_analytics(filters))
+
+@feedback_bp.route('/history', methods=['GET'])
+def get_user_history():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Missing required parameter: user_id'}), 400
+    return jsonify(FeedbackController.get_user_feedback_history(user_id))
