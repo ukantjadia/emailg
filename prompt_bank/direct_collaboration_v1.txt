@@ -1,1 +1,23 @@
-Hi {{company_name}}, I see you're working on {{context}} in the {{industry}} sector. Interested in collaborating on a shared goal?
+Hi {{recipient_name}},
+
+I came across {{company_name}}'s work in {{industry}} and was impressed by [CONTEXT_POINTS]. It's clear you're [CONTEXT_POINTS], which really resonates with what we're building.
+
+{{additional_context}}
+
+I noticed [CONTEXT_POINTS], and it got me thinking about potential synergies between our approaches. There might be an interesting opportunity for collaboration that could benefit both {{company_name}} and {{user_company}}.
+
+{{more_context}}
+
+Would you be open to a brief 15-minute call to explore this further? I'd love to share what we're working on and hear more about your current initiatives.
+
+Best regards,
+{{sender_name}}
+
+---
+
+INSTRUCTIONS FOR AI:
+Analyze the three context points and intelligently place them based on content:
+- First [CONTEXT_POINTS] (after "impressed by"): achievements, recent news, impressive work
+- Second [CONTEXT_POINTS] (after "It's clear you're"): company characteristics, values, approaches  
+- Third [CONTEXT_POINTS] (after "I noticed"): opportunities, trends, specific observations
+Prioritize natural sentence flow over rigid point placement.
