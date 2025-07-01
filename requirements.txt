@@ -7,4 +7,4 @@ groq
 openai
 anthropic
 flask_sqlalchemy
-psycopg2
+psycopg2-binary
