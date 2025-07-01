@@ -1,0 +1,1 @@
+Hello {{company_name}}, I'm reaching out after seeing your work in {{industry}}. {{context}} stood out. Let's connect.

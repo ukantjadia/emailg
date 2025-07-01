@@ -1,0 +1,1 @@
+Hi {{company_name}}, I’ve been following your journey in {{industry}} — especially {{context}}. Would love to connect and chat!

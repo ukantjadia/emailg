@@ -1,0 +1,1 @@
+Hi {{company_name}}, your recent initiatives in {{industry}}, especially around {{context}}, caught my attention. Let's discuss a potential partnership opportunity.

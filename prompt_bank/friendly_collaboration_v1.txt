@@ -1,0 +1,1 @@
+Hey {{company_name}}, I loved what you’re doing in {{industry}}, especially {{context}}. I think we’d make a great team — want to collaborate?
