@@ -1,6 +1,6 @@
 # Email Generator
 
-A powerful web application that leverages multiple AI providers (OpenAI, Anthropic, Groq) to generate personalized outreach emails. The application supports various email styles, purposes, and tones while providing a user-friendly interface for feedback and continuous improvement.
+A powerful web application that leverages multiple AI providers (Deepseek, Claude, Groq) to generate personalized outreach emails. The application supports various email styles, purposes, and tones while providing a user-friendly interface for feedback and continuous improvement.
 
 ## ✨ Features
 
