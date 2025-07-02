@@ -110,8 +110,8 @@ emailg-sandbox_emailgen/
 
    ```env
    # AI Provider API Keys (at least one required)
-   OPENAI_API_KEY=your_openai_api_key_here
-   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   DEEPSEEK_API_KEY=your_deepseek_api_key_here
+   CLAUDE_API_KEY=your_claude_api_key_here
    GROQ_API_KEY=your_groq_api_key_here
 
    # Database Configuration
