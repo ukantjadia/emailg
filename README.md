@@ -4,7 +4,7 @@ A powerful web application that leverages multiple AI providers (Deepseek, Claud
 
 ## ✨ Features
 
-- **Multi-AI Provider Support**: Integrates with OpenAI, Anthropic, and Groq APIs
+- **Multi-AI Provider Support**: Integrates with Deepseek, Claude, and Groq APIs
 - **Flexible Email Styles**: Direct, Friendly, and Professional tones
 - **Multiple Use Cases**: Sales, Networking, Partnership, and Collaboration emails
 - **User Feedback System**: Collect and store user feedback for continuous improvement
