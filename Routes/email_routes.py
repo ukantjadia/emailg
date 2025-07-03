@@ -26,7 +26,7 @@ def generate_email():
         user_id       = data.get("user_id", "test_test")
 
         context_points = data["additional_context"]
-        for i, point in enumerate(context_points):
+        for i, point in enumerate(context_points[:3]):
             word_count = len(point.strip().split())
             if word_count < 20:
                 return jsonify({
