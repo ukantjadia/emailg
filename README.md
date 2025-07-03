@@ -1,10 +1,10 @@
 # Email Generator
 
-A powerful web application that leverages multiple AI providers (OpenAI, Anthropic, Groq) to generate personalized outreach emails. The application supports various email styles, purposes, and tones while providing a user-friendly interface for feedback and continuous improvement.
+A powerful web application that leverages multiple AI providers (Deepseek, Claude, Groq) to generate personalized outreach emails. The application supports various email styles, purposes, and tones while providing a user-friendly interface for feedback and continuous improvement.
 
 ## ✨ Features
 
-- **Multi-AI Provider Support**: Integrates with OpenAI, Anthropic, and Groq APIs
+- **Multi-AI Provider Support**: Integrates with Deepseek, Claude, and Groq APIs
 - **Flexible Email Styles**: Direct, Friendly, and Professional tones
 - **Multiple Use Cases**: Sales, Networking, Partnership, and Collaboration emails
 - **User Feedback System**: Collect and store user feedback for continuous improvement
@@ -110,8 +110,8 @@ emailg-sandbox_emailgen/
 
    ```env
    # AI Provider API Keys (at least one required)
-   OPENAI_API_KEY=your_openai_api_key_here
-   ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   DEEPSEEK_API_KEY=your_deepseek_api_key_here
+   CLAUDE_API_KEY=your_claude_api_key_here
    GROQ_API_KEY=your_groq_api_key_here
 
    # Database Configuration
