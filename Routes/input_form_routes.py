@@ -1,116 +1,112 @@
-# Routes/input_form_routes.py
-
+import uuid
+import logging
+from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify
 from controllers.prompt_controller import PromptController
 from controllers.generate_controller import GenerateController
 from controllers.feedback_controller import FeedbackController
 from config.config import Config
-import logging
-import uuid
-from datetime import datetime
+from models.feedback_model import MessageFeedback, db
 
 logger = logging.getLogger(__name__)
 input_form = Blueprint("email_ui", __name__)
+
+generate_controller = GenerateController()
+feedback_controller = FeedbackController()
+
 
 @input_form.route("/email-generator", methods=["GET"])
 def show_email_form():
     return render_template("email_generator.html")
 
+
 @input_form.route("/api/generate-email", methods=["POST"])
 def generate_email():
     try:
-        data = request.get_json(force=True)
+        data         = request.get_json(force=True)
         tone         = data["tone"]
         focus        = data["focus"]
         company      = data["company_name"]
         industry     = data["industry"]
         model_choice = data["model_choice"]
-        user_id      = data.get("user_id", "test_test")
+        user_id      = data.get("user_id", "anonymous")
 
+        # Validate 3 required context points
         context_points = data["additional_context"]
-        for i, point in enumerate(context_points[:3]):
-            word_count = len(point.strip().split())
-            if word_count < 20:
+        for i, pt in enumerate(context_points[:3]):
+            if len(pt.strip().split()) < 20:
                 return jsonify({
-                    "error": f"Point {i + 1} must be at least 20 words. You entered {word_count}."
+                    "error": f"Point {i+1} must be at least 20 words."
                 }), 400
-        context      = " ".join(context_points)
-        
+        context = " ".join(context_points)
+
         logger.info("Generate request: %s", data)
 
-        # Build prompt template
-        try:
-            prompt = PromptController.build_prompt(tone, focus, company, industry, context)
-        except FileNotFoundError as fnf:
-            return jsonify({"error": str(fnf)}), 404
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        # Build prompt
+        prompt = PromptController.build_prompt(
+            tone, focus, company, industry, context
+        )
 
-        # Call the chosen LLM
-        try:
-            generated_message = GenerateController.generate_with_model(prompt, model_choice)
-        except TypeError as te:
-            if "authentication method" in str(te).lower() or "api_key" in str(te).lower():
-                return jsonify({"error": "Model API key is missing or invalid. Please check your configuration."}), 502
-            return jsonify({"error": str(te)}), 500
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+        # Call LLM
+        generated_message = generate_controller.generate_with_model(
+            prompt, model_choice
+        )
 
-        # Log the generation as feedback
-        message_id = str(uuid.uuid4())
-        parent_message_id = data.get("parent_message_id")
-        feedback_type = "regeneration" if parent_message_id else "generation"
+        # Log “generation” action
+        message_id          = str(uuid.uuid4())
+        parent_message_id   = data.get("parent_message_id")
+        feedback_type       = "regeneration" if parent_message_id else "generation"
 
-        feedback_data = {
-            "message_id": message_id,
+        feedback_controller.capture_feedback({
+            "message_id":       message_id,
             "parent_message_id": parent_message_id,
-            "feedback_type": feedback_type,
-            "user_id": user_id,
-            "company_name": company,
-            "industry": industry,
-            "tone": tone,
-            "focus": focus,
-            "context": context,
-            "model_used": model_choice,
-            "prompt_template": f"{tone}_{focus}_{Config.PROMPT_TEMPLATE_VERSION}",
-            "prompt_text": prompt,
-            "generated_message": {
-                "message": generated_message,
+            "feedback_type":    feedback_type,
+            "user_id":          user_id,
+            "company_name":     company,
+            "industry":         industry,
+            "tone":             tone,
+            "focus":            focus,
+            "context":          context,
+            "model_used":       model_choice,
+            "prompt_template":  f"{tone}_{focus}_{Config.PROMPT_TEMPLATE_VERSION}",
+            "prompt_text":      prompt,
+            "generated_message":{
+                "message":     generated_message,
                 "generated_at": datetime.utcnow().isoformat()
             }
-        }
-        logger.info(f" capatureing the feedback {feedback_data}")
-        FeedbackController.capture_feedback(feedback_data)
+        })
 
         return jsonify({
-            "message": generated_message,
-            "prompt_version": f"{tone}_{focus}_{Config.PROMPT_TEMPLATE_VERSION}",
-            "model_used": model_choice,
-            "message_id": message_id,
+            "message_id":     message_id,
             "parent_message_id": parent_message_id,
-            "prompt_text": prompt
+            "message":        generated_message,
+            "prompt_version": f"{tone}_{focus}_{Config.PROMPT_TEMPLATE_VERSION}",
+            "model_used":     model_choice,
+            "prompt_text":    prompt
         }), 200
-
-    except ValueError as ve:
-        logger.error("Invalid model_choice", exc_info=True)
-        return jsonify({"error": str(ve)}), 400
 
     except Exception as e:
         logger.error("Error in generate_email", exc_info=True)
-        return jsonify({"error": "Server error — please try again."}), 500
+        return jsonify({"error": str(e)}), 500
+
 
 @input_form.route("/api/feedback", methods=["POST"])
 def submit_feedback():
-    """
-    Capture upvote/downvote feedback from the front end and persist to DB.
-    Expects JSON with at least:
-      - message_id, feedback_type ('upvote'/'downvote'), user_id
-      - company_name, industry, tone, focus, context (string), optional_context?
-      - model_used, prompt_template, prompt_text, generated_message (JSON or string)
-    """
     data = request.get_json(force=True)
     logger.info("Feedback request: %s", data)
 
-    result = FeedbackController.capture_feedback(data)
+    result = feedback_controller.capture_feedback(data)
     status = 200 if result.get("success") else 400
     return jsonify(result), status
+
+
+@input_form.route("/feedback-view", methods=["GET"])
+def feedback_view():
+    """
+    Show all feedback rows in a simple HTML table.
+    """
+    rows = MessageFeedback.query.order_by(
+        MessageFeedback.timestamp.desc()
+    ).all()
+    feedback_list = [r.to_dict() for r in rows]
+    return render_template("feedback_view.html", feedback_list=feedback_list)
