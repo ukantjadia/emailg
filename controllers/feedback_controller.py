@@ -289,6 +289,7 @@ class FeedbackController:
                     'prompt_template': record.prompt_template,
                     'feedback_type': record.feedback_type,
                     'timestamp': record.timestamp.isoformat()
+                    'generated_message': record.generated_message
                 })
             return {
                 'success': True,
