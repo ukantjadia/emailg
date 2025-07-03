@@ -67,3 +67,6 @@ coverage.xml
 # Pylint
 pylint-report.txt
 pylint-global.txt
+
+# Database
+instance/
