@@ -103,10 +103,47 @@ def submit_feedback():
 @input_form.route("/feedback-view", methods=["GET"])
 def feedback_view():
     """
-    Show all feedback rows in a simple HTML table.
+    Group all feedback by message_id (or parent_message_id),
+    count each feedback_type, and allow inline drill-down.
     """
-    rows = MessageFeedback.query.order_by(
+    all_rows = MessageFeedback.query.order_by(
         MessageFeedback.timestamp.desc()
     ).all()
-    feedback_list = [r.to_dict() for r in rows]
-    return render_template("feedback_view.html", feedback_list=feedback_list)
+
+    dashboard = {}
+    for row in all_rows:
+        key = row.parent_message_id or row.message_id
+        if key not in dashboard:
+            # capture one snippet of the generated email
+            gen = ""
+            gm = row.generated_message
+            if isinstance(gm, dict):
+                gen = gm.get("message", "")
+            elif gm:
+                gen = gm
+            dashboard[key] = {
+                "message_id": key,
+                "generated": gen,
+                "upvote_count": 0,
+                "downvote_count": 0,
+                "regeneration_count": 0,
+                "entries": []
+            }
+        if row.feedback_type == "upvote":
+            dashboard[key]["upvote_count"] += 1
+        elif row.feedback_type == "downvote":
+            dashboard[key]["downvote_count"] += 1
+        elif row.feedback_type == "regeneration":
+            dashboard[key]["regeneration_count"] += 1
+
+        dashboard[key]["entries"].append(row.to_dict())
+
+    # sort by newest activity
+    messages = sorted(
+        dashboard.values(),
+        key=lambda m: m["entries"][0]["timestamp"],
+        reverse=True
+    )
+
+    return render_template("feedback_view.html", messages=messages)
+
