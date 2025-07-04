@@ -9,9 +9,10 @@ Message tone:  Direct
 
 Do not use any dashes or hyphens. Use commas or periods instead.
 Do not include any placeholders.
-In this tone, never include informal placeholders like [Your Name]. 
+In this tone, never include informal placeholders like [Your Name].
 
 General Requirements:
+Do not include any greeting at the start of the email (such as "Hi," "Dear," or any similar phrase). The email should begin directly with the main content for Professional tone.
 Each email should be 4-5 sentences long, following the structure: 1) Personalized observation about the person/company from context, 2) Tie that observation to a larger industry or economic trend, 3) State the purpose of the message (collaboration, sales, etc.), 4) Propose a meeting (following scheduling rules below), 5) Close with "Thank You", no need of "Best,
     [Your Name]"
 
@@ -19,7 +20,7 @@ Also generate a Subject line for each email that is attention-grabbing, personal
 
 Output one email draft, one  tone: Direct. This draft should use the same core content points but written in the respective tone.
 
-Do not include any placeholders like [Your Name] or [Recipient's Name]. 
+Do not include any placeholders like [Your Name] or [Recipient's Name].
 
 Do not use any markdown formatting (no **, no ---, no code blocks, etc.).
 

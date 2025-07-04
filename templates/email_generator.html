@@ -7,8 +7,14 @@
 </head>
 <body>
   <div class="card">
-    <h1>Email Generator</h1>
+    <nav style="text-align:right;margin-bottom:1em;">
+      <a href="{{ url_for('email_ui.feedback_view') }}"
+         style="color:#4ade80;font-weight:bold;text-decoration:none;">
+        View Feedback ↗
+      </a>
+    </nav>
 
+    <h1>Email Generator</h1>
     <form id="email-gen-form">
       <label>
         Company name:
@@ -43,44 +49,24 @@
 
       <fieldset>
         <legend>Additional Context (3 points required):</legend>
-
-        <label title="E.g. We just launched our new product and saw 2× month-over-month growth…">
+        <label title="E.g. We just launched…">
           Point 1:
-          <input
-            type="text"
-            name="context_point_1"
-            required
-            placeholder="We just launched our new product…"
-          />
+          <input type="text" name="context_point_1" required placeholder="We just launched…"/>
         </label>
-
-        <label title="E.g. Our target is enterprise SaaS teams with $5M+ ARR…">
+        <label title="E.g. Our target is…">
           Point 2:
-          <input
-            type="text"
-            name="context_point_2"
-            required
-            placeholder="Our target is enterprise SaaS teams…"
-          />
+          <input type="text" name="context_point_2" required placeholder="Our target is…"/>
         </label>
-
-        <label title="E.g. We’re exploring co-marketing partnerships in EMEA to expand reach…">
+        <label title="E.g. We’re exploring…">
           Point 3:
-          <input
-            type="text"
-            name="context_point_3"
-            required
-            placeholder="We’re exploring co-marketing partnerships…"
-          />
+          <input type="text" name="context_point_3" required placeholder="We’re exploring…"/>
         </label>
       </fieldset>
 
       <label>
         More Context (optional):
-        <textarea
-          name="optional_context"
-          placeholder="Any other details you’d like the AI to consider…"
-        ></textarea>
+        <textarea name="optional_context"
+                  placeholder="Any other details…"></textarea>
       </label>
 
       <label>
