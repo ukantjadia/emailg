@@ -167,7 +167,8 @@
 </head>
 <body>
   <nav>
-    <a href="{{ url_for('email_ui.show_email_form') }}">← Back to Generator</a>
+    <!-- hardcode the URL here to avoid BuildError -->
+    <a href="/email-generator">← Back to Generator</a>
   </nav>
 
   <h1>Feedback View</h1>
@@ -207,7 +208,7 @@
           </td>
 
           <td class="generated">{{ msg.generated }}</td>
-          <td>{{ msg.entries[0].timestamp.split('.')[0] }}</td>
+          <td>{{ msg.first_timestamp_fmt }}</td>
 
           <td>
             <button class="view-btn">View</button>
