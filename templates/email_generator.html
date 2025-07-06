@@ -7,9 +7,9 @@
 </head>
 <body>
   <div class="card">
-    <nav style="text-align:right;margin-bottom:1em;">
+    <nav style="text-align:right; margin-bottom:1em;">
       <a href="{{ url_for('email_ui.feedback_view') }}"
-         style="color:#4ade80;font-weight:bold;text-decoration:none;">
+         style="color:#4ade80; font-weight:bold; text-decoration:none;">
         View Feedback ↗
       </a>
     </nav>
@@ -27,16 +27,6 @@
       </label>
 
       <label>
-        Tone:
-        <select name="tone" required>
-          <option value="">— Select —</option>
-          <option value="professional">Professional</option>
-          <option value="friendly">Friendly</option>
-          <option value="direct">Direct</option>
-        </select>
-      </label>
-
-      <label>
         Focus:
         <select name="focus" required>
           <option value="">— Select —</option>
@@ -47,26 +37,37 @@
         </select>
       </label>
 
+      <!-- tone selection removed entirely -->
+
       <fieldset>
         <legend>Additional Context (3 points required):</legend>
-        <label title="E.g. We just launched…">
+        <label>
           Point 1:
-          <input type="text" name="context_point_1" required placeholder="We just launched…"/>
+          <input type="text"
+                 name="context_point_1"
+                 required
+                 placeholder="E.g. We just launched our new AI-driven analytics platform…" />
         </label>
-        <label title="E.g. Our target is…">
+        <label>
           Point 2:
-          <input type="text" name="context_point_2" required placeholder="Our target is…"/>
+          <input type="text"
+                 name="context_point_2"
+                 required
+                 placeholder="E.g. Our target customers are mid-market fintechs with Series A+ funding…" />
         </label>
-        <label title="E.g. We’re exploring…">
+        <label>
           Point 3:
-          <input type="text" name="context_point_3" required placeholder="We’re exploring…"/>
+          <input type="text"
+                 name="context_point_3"
+                 required
+                 placeholder="E.g. We’re exploring co-marketing partnerships with complementary SaaS vendors…" />
         </label>
       </fieldset>
 
       <label>
         More Context (optional):
         <textarea name="optional_context"
-                  placeholder="Any other details…"></textarea>
+                  placeholder="Any other details you’d like the AI to consider…"></textarea>
       </label>
 
       <label>
