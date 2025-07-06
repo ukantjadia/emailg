@@ -167,8 +167,8 @@
 </head>
 <body>
   <nav>
-    <!-- hardcode the URL here to avoid BuildError -->
-    <a href="/email-generator">← Back to Generator</a>
+    <!-- point back to your app’s root URL -->
+    <a href="/">← Back to Generator</a>
   </nav>
 
   <h1>Feedback View</h1>
@@ -197,7 +197,6 @@
           <td>{{ msg.entries[0].focus or '–' }}</td>
           <td>{{ msg.entries[0].model_used or '–' }}</td>
 
-          <!-- feedback cell: upvotes/downvotes/regens -->
           <td class="feedback-cell">
             👍 {{ msg.upvote_count }}
             &nbsp; 👎 {{ msg.downvote_count }}
@@ -250,24 +249,20 @@
 
     // Generated message expand/collapse
     document.querySelectorAll('.generated').forEach(el => {
-      el.addEventListener('click', () => {
-        el.classList.toggle('expanded');
-      });
+      el.addEventListener('click', () => el.classList.toggle('expanded'));
     });
 
     // Regen-trigger opens modal
     document.querySelectorAll('.regen-trigger').forEach(span => {
       span.addEventListener('click', () => {
-        const id = span.dataset.id;
-        document.getElementById(`modal-${id}`).style.display = 'flex';
+        document.getElementById(`modal-${span.dataset.id}`).style.display = 'flex';
       });
     });
 
     // Close modal
     document.querySelectorAll('.close-modal').forEach(x => {
       x.addEventListener('click', () => {
-        const id = x.dataset.id;
-        document.getElementById(`modal-${id}`).style.display = 'none';
+        document.getElementById(`modal-${x.dataset.id}`).style.display = 'none';
       });
     });
   </script>
