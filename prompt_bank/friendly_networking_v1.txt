@@ -9,9 +9,10 @@ Message tone: Friendly
 
 Do not use any em dashes or hyphens. Use commas or periods instead.
 Do not include any placeholders.
-In this tone, never include informal placeholders like [Your Name]. 
+In this tone, never include informal placeholders like [Your Name].
 
 General Requirements:
+Do not include any greeting at the start of the email (such as "Hi," "Dear," or any similar phrase). The email should begin directly with the main content for Friendly tone.
 Each email should be 4-5 sentences long, following the structure: 1) Personalized observation about the person/company from context, 2) Tie that observation to a larger industry or economic trend, 3) State the purpose of the message (networking, sales, etc.), 4) Propose a meeting (following scheduling rules below), 5) Close with "Thank You", no need of "Best,
     [Your Name]"
 
@@ -21,7 +22,7 @@ Output one email draft, tone: Friendly. This draft should use the same core cont
 
 Output one email draft, tone: Friendly. This draft should use the same core content points but written in the respective tone.
 
-Do not include any placeholders like [Your Name] or [Recipient's Name]. 
+Do not include any placeholders like [Your Name] or [Recipient's Name].
 
 Do not use any markdown formatting (no **, no ---, no code blocks, etc.).
 
@@ -67,4 +68,3 @@ Absolutely no placeholders left in the output – the email should read as a com
 Keep each email version within roughly 150 words or less (since 4-5 sentences). This brevity is by design and also helps deliverability.
 
 Now, given the inputs above, generate one email draft (with subject) in the tone: Friendly. The output must adhere strictly to the guidelines. Do not include any additional notes, signature, markdown syntax, placeholder tags, or formatting beyond the subject and email body.Remember to tailor the content to the provided context and purpose, and ensure consistency in the message across tones. Do not include these instructions or any additional commentary in the output, only the emails and their subject lines.
-

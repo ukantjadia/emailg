@@ -1,164 +1,139 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("[email_generator.js] DOMContentLoaded");
   const form = document.getElementById("email-gen-form");
   const resultArea = document.getElementById("result-area");
+  let lastPayload = null;
 
-  // Store last generation data for feedback
-  let lastFeedbackData = null;
-
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async e => {
     e.preventDefault();
-    console.log("[email_generator.js] Form submitted");
-    await generateOrRegenerate();
+    resultArea.innerHTML = "<em>Generating…</em>";
+
+    // collect context points
+    const contextPoints = [
+      form.context_point_1.value.trim(),
+      form.context_point_2.value.trim(),
+      form.context_point_3.value.trim()
+    ];
+    const optional = form.optional_context.value.trim();
+    if (optional) contextPoints.push(optional);
+
+    // build base payload (no tones field here)
+    const payload = {
+      company_name:       form.company_name.value.trim(),
+      industry:           form.industry.value.trim(),
+      focus:              form.focus.value,
+      additional_context: contextPoints,
+      model_choice:       form.model_choice.value,
+      user_id:            "anonymous"
+    };
+    lastPayload = { ...payload };
+
+    try {
+      const res = await fetch("/api/generate-email", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+      const results = await res.json();
+
+      // render each tone block
+      let html = `<h2>Generated Emails</h2>`;
+      results.forEach(r => {
+        html += `
+          <div class="email-block"
+               data-message-id="${r.message_id}"
+               data-tone="${r.tone}">
+            <h3>Tone: ${r.tone}</h3>
+            <div class="message-text">
+              <pre>${r.message}</pre>
+            </div>
+            <div class="controls">
+              <button class="btn upvote">👍 Upvote</button>
+              <button class="btn downvote">👎 Downvote</button>
+              <button class="btn regenerate">🔁 Regenerate</button>
+            </div>
+          </div>
+          <hr/>`;
+      });
+      resultArea.innerHTML = html;
+
+      // wire up controls
+      document.querySelectorAll(".email-block").forEach(block => {
+        const messageId = block.dataset.messageId;
+        const tone      = block.dataset.tone;
+        const text      = block.querySelector("pre").innerText;
+
+        block.querySelector(".upvote").onclick = () => sendFeedback({
+          message_id: messageId,
+          feedback_type: "upvote",
+          tone, text
+        });
+        block.querySelector(".downvote").onclick = () => sendFeedback({
+          message_id: messageId,
+          feedback_type: "downvote",
+          tone, text
+        });
+        block.querySelector(".regenerate").onclick = async () => {
+          block.querySelector(".regenerate").disabled = true;
+          await regenerateTone(messageId, tone, block);
+          block.querySelector(".regenerate").disabled = false;
+        };
+      });
+    } catch (err) {
+      resultArea.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+    }
   });
 
-  async function generateOrRegenerate(regenPayload = null) {
-    resultArea.innerHTML = "<em>Generating…</em>";
-    let payload, endpoint;
-    if (regenPayload) {
-      payload = { ...regenPayload };
-      if (payload.additional_context) {
-        payload.context = payload.additional_context.join(" ");
-        delete payload.additional_context;
-      }
-      // If context already exists, leave it as is
-      endpoint = "/regenerate";
-      // Add user_id
-      payload.user_id = '123345-123345-8234';
-      console.log("[email_generator.js] Regeneration payload:", payload);
-    } else {
-      const contextPoints = [
-        form.context_point_1.value.trim(),
-        form.context_point_2.value.trim(),
-        form.context_point_3.value.trim(),
-      ];
-      const optional = form.optional_context.value.trim();
-      if (optional) contextPoints.push(optional);
-      payload = {
-        company_name: form.company_name.value.trim(),
-        industry: form.industry.value.trim(),
-        tone: form.tone.value,
-        focus: form.focus.value,
-        additional_context: contextPoints,
-        model_choice: form.model_choice.value,
-      };
-      if (form.parent_message_id) {
-        payload.parent_message_id = form.parent_message_id;
-      }
-      // Add user_id
-      payload.user_id = '123345-123345-8234';
-      endpoint = "/api/generate-email";
-      console.log("[email_generator.js] Generation payload:", payload);
-    }
-    try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      console.log(`[email_generator.js] ${endpoint} response status:`, res.status);
-      if (!res.ok) {
-        const err = await res.json();
-        console.error("[email_generator.js] Error response:", err);
-        throw new Error(err.error || res.statusText);
-      }
-      const response = await res.json();
-      const {
-        message,
-        prompt_template,
-        prompt_version,
-        message_id,
-        parent_message_id,
-        prompt_text
-      } = response;
 
-      const promptTemplateValue = prompt_template || prompt_version || "";
-
-      lastFeedbackData = {
-        message_id,
-        parent_message_id: parent_message_id || payload.parent_message_id || null,
-        feedback_type: null, // will be set on upvote/downvote
-        company_name: payload.company_name,
-        industry: payload.industry,
-        tone: payload.tone,
-        focus: payload.focus,
-        context: payload.context || (payload.additional_context || []).join(" "),
-        model_used: payload.model_choice,
-        prompt_template: promptTemplateValue,
-        prompt_text: prompt_text || "",
-        generated_message: {
-          message: message,
-          generated_at: new Date().toISOString()
-        }
-      };
-      resultArea.innerHTML = `
-        <h2>Generated Email</h2>
-        <pre>${message}</pre>
-        <p><small>Prompt version: ${promptTemplateValue}</small></p>
-        <button id="upvote">👍 Upvote</button>
-        <button id="downvote">👎 Downvote</button>
-        <button id="regenerate">🔄 Regenerate</button>
-      `;
-      console.log("[email_generator.js] Result area updated");
-      document.getElementById("upvote")
-        .onclick = () => sendFeedback("upvote");
-      document.getElementById("downvote")
-        .onclick = () => sendFeedback("downvote");
-      document.getElementById("regenerate")
-        .onclick = () => {
-          form.parent_message_id = message_id;
-          const nextRegenPayload = {
-            company_name: payload.company_name,
-            industry: payload.industry,
-            tone: payload.tone,
-            focus: payload.focus,
-            context: payload.context || (payload.additional_context || []).join(" "),
-            model_choice: payload.model_choice,
-            parent_message_id: message_id
-          };
-          generateOrRegenerate(nextRegenPayload);
-        };
-    } catch (err) {
-      resultArea.innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
-      console.error("[email_generator.js] Exception:", err);
-    }
-  }
-
-  async function sendFeedback(type) {
-    if (!lastFeedbackData) return;
-    const feedbackPayload = {
-      ...lastFeedbackData,
-      feedback_type: type,
-      user_id: '123345-123345-8234'
+  async function sendFeedback({ message_id, feedback_type, tone, text }) {
+    const payload = {
+      message_id,
+      feedback_type,
+      user_id:         lastPayload.user_id,
+      company_name:    lastPayload.company_name,
+      industry:        lastPayload.industry,
+      tone,
+      focus:           lastPayload.focus,
+      context:         lastPayload.additional_context.join(" "),
+      model_used:      lastPayload.model_choice,
+      prompt_template: `${tone}_${lastPayload.focus}_1`,
+      prompt_text:     "",
+      generated_message: { message: text, generated_at: new Date().toISOString() }
     };
-    // Remove user_id from requiredFields check
-    const requiredFields = [
-      'message_id', 'company_name', 'industry', 'tone', 'focus', 'context',
-      'model_used', 'prompt_template', 'prompt_text', 'generated_message', 'feedback_type'
-    ];
-    for (const field of requiredFields) {
-      if (typeof feedbackPayload[field] === 'undefined') {
-        alert(`Missing required feedback field: ${field}`);
-        return;
-      }
-    }
-    console.log("[email_generator.js] Sending feedback:", feedbackPayload);
     const res = await fetch("/api/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(feedbackPayload)
+      method:  "POST",
+      headers: { "Content-Type":"application/json" },
+      body:    JSON.stringify(payload)
     });
     const result = await res.json();
-    console.log("[email_generator.js] Feedback API response:", result);
-    alert("Thanks for your feedback!");
+    alert(res.ok ? `✅ ${feedback_type} recorded` : `❌ feedback failed: ${result.error}`);
   }
 
-  // async function regenerateWithParent(regenPayload) {
-  //   const res = await fetch("/regenerate", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(regenPayload)
-  //   });
-  //   // ... handle response as before ...
-  // }
+  async function regenerateTone(parent_message_id, tone, block) {
+    const regenPayload = {
+      ...lastPayload,
+      parent_message_id,
+      tones: [tone]
+    };
+    const res = await fetch("/api/generate-email", {
+      method:  "POST",
+      headers: { "Content-Type":"application/json" },
+      body:    JSON.stringify(regenPayload)
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      return alert("Regen failed: " + err.error);
+    }
+    const [r] = await res.json();
+    block.querySelector("pre").innerText    = r.message;
+    block.dataset.messageId               = r.message_id;
+
+    // auto‐record the regeneration
+    sendFeedback({
+      message_id: r.message_id,
+      feedback_type: "regeneration",
+      tone,
+      text: r.message
+    });
+  }
 });
