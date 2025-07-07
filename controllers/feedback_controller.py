@@ -288,7 +288,7 @@ class FeedbackController:
                     'model_used': record.model_used,
                     'prompt_template': record.prompt_template,
                     'feedback_type': record.feedback_type,
-                    'timestamp': record.timestamp.isoformat()
+                    'timestamp': record.timestamp.isoformat(),
                     'generated_message': record.generated_message
                 })
             return {
