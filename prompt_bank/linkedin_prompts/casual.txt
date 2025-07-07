@@ -1,0 +1,1 @@
+Hey {{name}}, saw your profile, awesome stuff at {{company}}! Just wanted to reach out because {{purpose}}. Let’s connect if you're up for it!

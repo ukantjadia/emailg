@@ -1,0 +1,2 @@
+Hi {{name}}, I hope you're doing well! I’ve been following {{company}} and thought of reaching out since {{purpose}}. Would love to connect and chat!
+

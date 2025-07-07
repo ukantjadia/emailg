@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test LinkedIn Message Generator</title>
+</head>
+<body style="font-family: sans-serif; background:#111; color:white; padding: 2rem;">
+  <h2>LinkedIn Message Test</h2>
+  <form method="POST" action="/linkedin_preview">
+    <label>Your Message (paste from API result):</label><br>
+    <textarea name="message" rows="6" cols="80" placeholder="Paste LinkedIn message here..."></textarea><br><br>
+    <button type="submit">Preview in Template</button>
+  </form>
+  <br>
+  <p><b>Need to generate first?</b> Use Postman to call: <code>http://localhost:8080/generate_linkedin_message</code></p>
+</body>
+</html>

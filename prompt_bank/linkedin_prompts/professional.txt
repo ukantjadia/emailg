@@ -1,0 +1,1 @@
+Dear {{name}}, I came across your work at {{company}} and found it quite impressive. I'm reaching out to discuss {{purpose}}. Looking forward to connecting.
