@@ -28,15 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
     lastPayload = { ...payload };
 
     try {
-      const res = await fetch("/api/generate-email-all-tones", {
+      const res = await fetch("/api/generate-email", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(payload)
       });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || res.statusText);
-      }
+      if (!res.ok) throw new Error((await res.json()).error || res.statusText);
       const results = await res.json();
 
       // render each tone block
@@ -60,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       resultArea.innerHTML = html;
 
-      // wire up feedback + regeneration
+      // wire up controls
       document.querySelectorAll(".email-block").forEach(block => {
         const messageId = block.dataset.messageId;
         const tone      = block.dataset.tone;
@@ -118,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
       parent_message_id,
       tones: [tone]
     };
-    const res = await fetch("/api/generate-email-all-tones", {
+    const res = await fetch("/api/generate-email", {
       method:  "POST",
       headers: { "Content-Type":"application/json" },
       body:    JSON.stringify(regenPayload)
