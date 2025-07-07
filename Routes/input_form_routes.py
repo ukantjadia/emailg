@@ -1,11 +1,8 @@
-# routes/input_form_routes.py
-
 import uuid
 import logging
 import asyncio
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify
-from flask import redirect, url_for
 from controllers.prompt_controller import PromptController
 from controllers.generate_controller import GenerateController
 from controllers.feedback_controller import FeedbackController
@@ -15,33 +12,36 @@ from models.feedback_model import MessageFeedback, db
 logger = logging.getLogger(__name__)
 input_form = Blueprint("email_ui", __name__)
 
-generate_controller = GenerateController()
-feedback_controller = FeedbackController()
+gen_ctrl = GenerateController()
+fb_ctrl  = FeedbackController()
 
-# default three tones (enthusiastic removed)
-DEFAULT_TONES = ["professional", "friendly", "direct"]
+DEFAULT_TONES = ["professional", "friendly", "direct"]  # enthusiastic removed
 
 
 @input_form.route("/", methods=["GET"])
 @input_form.route("/email-generator", methods=["GET"])
 def show_email_form():
-    """
-    Serves the Email Generator UI.  Now aliased to both “/” and “/email-generator”.
-    """
     return render_template("email_generator.html")
 
 
+# Alias BOTH endpoints to the same logic: initial gen + regenerations
+@input_form.route("/api/generate-email", methods=["POST"])
 @input_form.route("/api/generate-email-all-tones", methods=["POST"])
 def generate_email_all_tones():
-    # … your existing code for fan-out generation …
+    """
+    Handles both:
+     - initial generation (no parent_message_id, all DEFAULT_TONES)
+     - regenerations (parent_message_id supplied, tones override)
+    """
     data     = request.get_json(force=True)
     company  = data.get("company_name", "").strip()
     industry = data.get("industry", "").strip()
     focus    = data.get("focus", "")
     model    = data.get("model_choice", "")
     contexts = data.get("additional_context", [])
-    parent   = data.get("parent_message_id")
+    parent   = data.get("parent_message_id")    # will be None on first gen
 
+    # validation
     if not (company and industry and focus and model and contexts):
         return jsonify({"error": "Missing required fields"}), 400
     for i, pt in enumerate(contexts[:3]):
@@ -49,15 +49,16 @@ def generate_email_all_tones():
             return jsonify({"error": f"Context point {i+1} must be ≥20 words."}), 400
     context = " ".join(contexts)
 
+    # override tones on regen, else use all three
     tones = data.get("tones") or DEFAULT_TONES
 
     async def build_and_call(tone):
         prompt = PromptController.build_prompt(tone, focus, company, industry, context)
         message = await asyncio.to_thread(
-            generate_controller.generate_with_model,
+            GenerateController.generate_with_model,
             prompt, model
         )
-        return {"tone": tone, "prompt": prompt, "message": message}
+        return tone, prompt, message
 
     try:
         loop = asyncio.new_event_loop()
@@ -71,30 +72,32 @@ def generate_email_all_tones():
         loop.close()
 
     output = []
-    for r in results:
+    user_id = data.get("user_id", "anonymous")
+    for tone, prompt_text, msg in results:
         msg_id = str(uuid.uuid4())
-        feedback_controller.capture_feedback({
+        # persist the 'generation' record, now including parent if any
+        fb_ctrl.capture_feedback({
             "message_id":        msg_id,
             "parent_message_id": parent,
             "feedback_type":     "generation",
-            "user_id":           data.get("user_id","anonymous"),
+            "user_id":           user_id,
             "company_name":      company,
             "industry":          industry,
-            "tone":              r["tone"],
+            "tone":              tone,
             "focus":             focus,
             "context":           context,
             "model_used":        model,
-            "prompt_template":   f"{r['tone']}_{focus}_{Config.PROMPT_TEMPLATE_VERSION}",
-            "prompt_text":       r["prompt"],
+            "prompt_template":   f"{tone}_{focus}_{Config.PROMPT_TEMPLATE_VERSION}",
+            "prompt_text":       prompt_text,
             "generated_message": {
-                "message":      r["message"],
+                "message":      msg,
                 "generated_at": datetime.utcnow().isoformat()
             }
         })
         output.append({
-            "tone":       r["tone"],
+            "tone":       tone,
             "message_id": msg_id,
-            "message":    r["message"]
+            "message":    msg
         })
 
     return jsonify(output), 200
@@ -104,7 +107,7 @@ def generate_email_all_tones():
 def submit_feedback():
     data = request.get_json(force=True)
     logger.info("Feedback request: %s", data)
-    result = feedback_controller.capture_feedback(data)
+    result = fb_ctrl.capture_feedback(data)
     status = 200 if result.get("success") else 400
     return jsonify(result), status
 
@@ -141,13 +144,14 @@ def feedback_view():
         reverse=True
     )
 
-    # format first timestamp for display
+    # format first timestamp
+    from datetime import datetime as dt
     for m in messages:
         ts = m["entries"][0]["timestamp"]
         try:
-            dt_obj = datetime.fromisoformat(ts)
-            m["first_timestamp_fmt"] = dt_obj.strftime("%b %d, %Y %I:%M %p")
-        except Exception:
+            obj = dt.fromisoformat(ts)
+            m["first_timestamp_fmt"] = obj.strftime("%b %d, %Y %I:%M %p")
+        except:
             m["first_timestamp_fmt"] = ts.split(".")[0]
 
     return render_template("feedback_view.html", messages=messages)
