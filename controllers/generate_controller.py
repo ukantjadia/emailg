@@ -1,3 +1,5 @@
+# controllers/generate_controller.py
+
 import uuid
 import logging
 import asyncio
@@ -25,6 +27,7 @@ class GenerateController:
 
     @classmethod
     def _call_groq(cls, prompt: str) -> str:
+        # ... unchanged ...
         client = Groq(api_key=Config.GROQ_API_KEY)
         completion = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
@@ -43,6 +46,7 @@ class GenerateController:
 
     @classmethod
     def _call_claude(cls, prompt: str) -> str:
+        # ... unchanged ...
         client = anthropic.Client(api_key=Config.ANTHROPIC_API_KEY)
         full_prompt = f"{anthropic.HUMAN_PROMPT}{prompt}{anthropic.AI_PROMPT}"
         resp = client.completions.create(
@@ -55,10 +59,8 @@ class GenerateController:
 
     @classmethod
     def _call_deepseek(cls, prompt: str) -> str:
-        client = OpenAI(
-            api_key=Config.DEEPSEEK_API_KEY,
-            base_url=Config.OPENAI_BASE_URL
-        )
+        # ... unchanged ...
+        client = OpenAI(api_key=Config.DEEPSEEK_API_KEY, base_url=Config.OPENAI_BASE_URL)
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
@@ -71,6 +73,7 @@ class GenerateController:
 
     @classmethod
     def generate_with_model(cls, prompt: str, model_choice: str) -> str:
+        # ... unchanged dispatch ...
         key = model_choice.strip().lower()
         if key == "groq":
             return cls._call_groq(prompt)
@@ -83,36 +86,25 @@ class GenerateController:
     @classmethod
     def generate_all(cls, data: dict):
         """
-        data must contain:
+        Expects data with:
           - company_name, industry, focus, model_choice
-          - additional_context (list of at least 3 strings)
+          - context_text (already validated & joined by the route)
           - user_id (optional)
-          - optionally parent_message_id (for regenerations)
-          - optionally tones (single-tone list to override DEFAULT_TONES)
+          - parent_message_id (optional)
+          - tones (optional override)
         """
-        # In‐function import to avoid circular dependency
         from controllers.feedback_controller import FeedbackController
         feedback_ctrl = FeedbackController()
 
-        # 1) extract & validate
-        company  = data.get("company_name", "").strip()
-        industry = data.get("industry", "").strip()
-        focus    = data.get("focus", "")
-        model    = data.get("model_choice", "")
-        contexts = data.get("additional_context", [])
-        parent   = data.get("parent_message_id")  # may be None
+        company  = data["company_name"]
+        industry = data["industry"]
+        focus    = data["focus"]
+        model    = data["model_choice"]
+        context  = data["context_text"]
+        parent   = data.get("parent_message_id")
+        tones    = data.get("tones") or DEFAULT_TONES
+        user_id  = data.get("user_id", "anonymous")
 
-        if not (company and industry and focus and model and contexts):
-            raise ValueError("Missing required fields")
-        for i, pt in enumerate(contexts[:3]):
-            if len(pt.split()) < 20:
-                raise ValueError(f"Context point {i+1} must be ≥20 words.")
-        context = " ".join(contexts)
-
-        tones  = data.get("tones") or DEFAULT_TONES
-        user_id = data.get("user_id", "anonymous")
-
-        # 2) build & call LLMs in parallel
         async def call_tone(tone: str):
             prompt = PromptController.build_prompt(tone, focus, company, industry, context)
             message = await asyncio.to_thread(cls.generate_with_model, prompt, model)
@@ -123,13 +115,9 @@ class GenerateController:
             asyncio.set_event_loop(loop)
             tasks = [call_tone(t) for t in tones]
             raw_results = loop.run_until_complete(asyncio.gather(*tasks))
-        except Exception:
-            logger.exception("Parallel generation error")
-            raise
         finally:
             loop.close()
 
-        # 3) persist feedback rows & build output
         output = []
         for tone, prompt_text, msg in raw_results:
             msg_id = str(uuid.uuid4())
