@@ -27,7 +27,7 @@ class GenerateController:
 
     @classmethod
     def _call_groq(cls, prompt: str) -> str:
-        # ... unchanged ...
+
         client = Groq(api_key=Config.GROQ_API_KEY)
         completion = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
@@ -46,7 +46,7 @@ class GenerateController:
 
     @classmethod
     def _call_claude(cls, prompt: str) -> str:
-        # ... unchanged ...
+
         client = anthropic.Client(api_key=Config.ANTHROPIC_API_KEY)
         full_prompt = f"{anthropic.HUMAN_PROMPT}{prompt}{anthropic.AI_PROMPT}"
         resp = client.completions.create(
@@ -59,7 +59,7 @@ class GenerateController:
 
     @classmethod
     def _call_deepseek(cls, prompt: str) -> str:
-        # ... unchanged ...
+
         client = OpenAI(api_key=Config.DEEPSEEK_API_KEY, base_url=Config.OPENAI_BASE_URL)
         response = client.chat.completions.create(
             model="deepseek-chat",
